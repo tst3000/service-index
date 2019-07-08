@@ -1,8 +1,8 @@
 #!groovy
 
-node {
+agent {
 
-       load "$JENKINS_HOME/jobvars.env"
+       //load "$JENKINS_HOME/jobvars.env"
 
        dir('src/github.com/reportportal/service-index') {
 
