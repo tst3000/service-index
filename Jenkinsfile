@@ -1,6 +1,6 @@
 #!groovy
 
-agent {
+node {
 
        //load "$JENKINS_HOME/jobvars.env"
 
