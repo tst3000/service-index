@@ -4,8 +4,6 @@ node {
 
        //load "$JENKINS_HOME/jobvars.env"
 
-       dir('src/github.com/reportportal/service-index') {
-
            stage('Checkout'){
                 checkout scm
                 sh 'git checkout master'
@@ -21,7 +19,5 @@ node {
                    sh "docker-compose -p reportportal5 -f $COMPOSE_FILE_RP_5 up -d --force-recreate index"
                 }
             }
-
-        }
 }
 
