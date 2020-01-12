@@ -85,7 +85,7 @@ podTemplate(
             }
             container('kaniko') {
                 stage('Build Image') {
-                    sh '/kaniko/executor -f `pwd`/DockerfileDev -c `pwd` --insecure --skip-tls-verify --cache=true --destination=$tag'
+                    sh '/kaniko/executor -f `pwd`/DockerfileDev -c `pwd` --cache=true --destination=$tag'
 
                 }
             }
