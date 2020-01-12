@@ -8,20 +8,18 @@ podTemplate(
         label: "${label}",
         containers: [
                 containerTemplate(name: 'jnlp', image: 'jenkins/jnlp-slave:alpine'),
-                containerTemplate(name: 'docker', image: 'docker', command: 'cat', ttyEnabled: true),
                 //alpine image does not have make included
                 containerTemplate(name: 'golang', image: 'golang:1.12.7', ttyEnabled: true, command: 'cat'),
 
                 containerTemplate(name: 'kubectl', image: 'lachlanevenson/k8s-kubectl:v1.8.8', command: 'cat', ttyEnabled: true),
                 containerTemplate(name: 'helm', image: 'lachlanevenson/k8s-helm:v3.0.2', command: 'cat', ttyEnabled: true),
-                // containerTemplate(name: 'yq', image: 'mikefarah/yq', command: 'cat', ttyEnabled: true),
-                containerTemplate(name: 'httpie', image: 'blacktop/httpie', command: 'cat', ttyEnabled: true)
-//                containerTemplate(name: 'postman', image: 'postman/newman:alpine', command: 'cat', ttyEnabled: true)
+                containerTemplate(name: 'httpie', image: 'blacktop/httpie', command: 'cat', ttyEnabled: true),
+                containerTemplate(name: 'kaniko', image: 'gcr.io/kaniko-project/executor', command: 'cat', ttyEnabled: true)
         ],
         volumes: [
-                hostPathVolume(hostPath: '/var/run/docker.sock', mountPath: '/var/run/docker.sock'),
                 secretVolume(mountPath: '/etc/.dockercreds', secretName: 'docker-creds'),
-                hostPathVolume(mountPath: '/go/pkg/mod', hostPath: '/tmp/jenkins/go')
+                hostPathVolume(mountPath: '/go/pkg/mod', hostPath: '/tmp/jenkins/go'),
+                secretVolume(mountPath: '/kaniko/.docker', secretName: 'docker-creds')
         ]
 ) {
 
@@ -64,7 +62,6 @@ podTemplate(
         def helm = load "${ciDir}/jenkins/scripts/helm.groovy"
         def docker = load "${ciDir}/jenkins/scripts/docker.groovy"
 
-        docker.init()
         helm.init()
 
 
@@ -86,12 +83,10 @@ podTemplate(
                     sh "make build v=$srvVersion"
                 }
             }
-            container('docker') {
+            container('kaniko') {
                 stage('Build Image') {
-                    sh "docker build -t $tag -f DockerfileDev ."
-                }
-                stage('Push Image') {
-                    sh "docker push $tag"
+                    sh '/kaniko/executor -f `pwd`/DockerfileDev -c `pwd` --insecure --skip-tls-verify --cache=true --destination=$tag'
+
                 }
             }
         }
