@@ -14,12 +14,12 @@ podTemplate(
                 containerTemplate(name: 'kubectl', image: 'lachlanevenson/k8s-kubectl:v1.8.8', command: 'cat', ttyEnabled: true),
                 containerTemplate(name: 'helm', image: 'lachlanevenson/k8s-helm:v3.0.2', command: 'cat', ttyEnabled: true),
                 containerTemplate(name: 'httpie', image: 'blacktop/httpie', command: 'cat', ttyEnabled: true),
-                containerTemplate(name: 'kaniko', image: 'gcr.io/kaniko-project/executor', command: 'cat', ttyEnabled: true)
+                containerTemplate(name: 'kaniko', image: 'gcr.io/kaniko-project/executor:debug-539ddefcae3fd6b411a95982a830d987f4214251', command: '/busybox/cat', ttyEnabled: true)
         ],
         volumes: [
-                secretVolume(mountPath: '/etc/.dockercreds', secretName: 'docker-creds'),
+                // secretVolume(mountPath: '/kaniko/.docker/config.json', secretName: 'dockerconfigjson-secret'),
                 hostPathVolume(mountPath: '/go/pkg/mod', hostPath: '/tmp/jenkins/go'),
-                secretVolume(mountPath: '/kaniko/.docker', secretName: 'docker-creds')
+                secretVolume(mountPath: '/kaniko/.docker', secretName: 'dockerconfigjson-secret')
         ]
 ) {
 
