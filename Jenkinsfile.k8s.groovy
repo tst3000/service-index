@@ -73,7 +73,7 @@ podTemplate(
         }
 
 //        def srvRepo = "quay.io/reportportal/service-index"
-        def srvRepo = "reportportal/service-index"
+        def srvRepo = "reportportal/service-index-dev"
         def srvVersion = "$majorVersion-BUILD-${env.BUILD_NUMBER}"
         def tag = "$srvRepo:$srvVersion"
 
