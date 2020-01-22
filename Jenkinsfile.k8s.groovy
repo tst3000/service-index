@@ -85,7 +85,7 @@ podTemplate(
             }
             container('kaniko') {
                 stage('Build Image') {
-                    sh "/kaniko/executor -f `pwd`/DockerfileDev -c `pwd` --cache=true --destination=$tag --cache-repo=$srvRepo:cache"
+                    sh "/kaniko/executor -f `pwd`/DockerfileDev -c `pwd` --cache=true --destination=$tag --cache-repo=$srvRepo"
 
                 }
             }
