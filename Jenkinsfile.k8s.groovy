@@ -9,7 +9,7 @@ podTemplate(
         label: "${label}",
         containers: [
                 containerTemplate(name: 'jnlp', image: 'jenkins/jnlp-slave:alpine'),
-                containerTemplate(name: 'docker', image: 'docker', command: 'cat', ttyEnabled: true),
+                containerTemplate(name: 'builkitd', image: 'moby/buildkit:master', command: 'cat', ttyEnabled: true, "privileged": true),
                 //alpine image does not have make included
                 containerTemplate(name: 'golang', image: 'golang:1.12.7', ttyEnabled: true, command: 'cat'),
 
@@ -18,7 +18,6 @@ podTemplate(
                 containerTemplate(name: 'httpie', image: 'blacktop/httpie', command: 'cat', ttyEnabled: true)
         ],
         volumes: [
-                hostPathVolume(hostPath: '/var/run/docker.sock', mountPath: '/var/run/docker.sock'),
                 secretVolume(mountPath: '/etc/.dockercreds', secretName: 'docker-creds'),
                 hostPathVolume(mountPath: '/go/pkg/mod', hostPath: '/tmp/jenkins/go')
         ]
@@ -81,13 +80,20 @@ podTemplate(
                     sh "make build v=$srvVersion"
                 }
             }
-            container('docker') {
+            container('builkitd') {
                 stage('Build Image') {
-                    sh "docker build -t $tag -f DockerfileDev ."
+                    sh """
+                       buildctl build --frontend dockerfile.v0 \
+                       --local context=./ \
+                       --local dockerfile=./DockerfileDev \
+                        --output type=image,name=$tag,push=true                    
+                    """
+
+//                    sh "docker build -t $tag -f DockerfileDev ."
                 }
-                stage('Push Image') {
-                    sh "docker push $tag"
-                }
+//                stage('Push Image') {
+//                    sh "docker push $tag"
+//                }
             }
         }
 
